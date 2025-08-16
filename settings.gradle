@@ -1,0 +1,3 @@
+rootProject.name = 'rate-limit-as-a-service'
+
+include("rate-limit-service")
