@@ -1,7 +1,6 @@
 package com.rate.limit.service.controller;
 
 import com.rate.limit.service.service.RateLimiterService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

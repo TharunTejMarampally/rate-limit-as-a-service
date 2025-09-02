@@ -1,5 +1,6 @@
 package com.rate.limit.service.repository;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rate.limit.service.entity.AlgorithmState;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
@@ -11,9 +12,11 @@ public class RateLimiterRepository {
     private static final String KEY="STATE";
 
     private final RedisTemplate<String,Object> redisTemplate;
+    private final ObjectMapper objectMapper;
 
-    public RateLimiterRepository(RedisTemplate<String, Object> redisTemplate) {
+    public RateLimiterRepository(RedisTemplate<String, Object> redisTemplate, ObjectMapper objectMapper) {
         this.redisTemplate = redisTemplate;
+        this.objectMapper = objectMapper;
     }
 
     //save
@@ -28,10 +31,11 @@ public class RateLimiterRepository {
     }
 
     //get the last inserted json
-    public AlgorithmState retriveLastInsertedjson(){
+    public AlgorithmState retriveLastInsertedValue(){
         String id= (String) redisTemplate.opsForList().index(KEY+"_IDS",-1);
         if(StringUtils.hasText(id)){
-            return (AlgorithmState) redisTemplate.opsForHash().get(KEY,id);
+            Object raw=redisTemplate.opsForHash().get(KEY,id);
+            return objectMapper.convertValue(raw,AlgorithmState.class);
         }
         return null;
     }

@@ -14,7 +14,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AlgorithmState implements Serializable {
-
     private String id= UUID.randomUUID().toString();
     private LocalDateTime timeStamp;
     private int refileRate;
