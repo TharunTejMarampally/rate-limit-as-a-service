@@ -1,5 +1,6 @@
 package com.rate.limit.service.service;
 
+import com.rate.limit.service.dto.RateLimitResponse;
 import com.rate.limit.service.entity.AlgorithmState;
 import com.rate.limit.service.repository.RateLimiterRepository;
 import org.springframework.stereotype.Service;
@@ -16,8 +17,7 @@ public class RateLimiterService {
         this.rateLimiterRepository = rateLimiterRepository;
     }
 
-    public String tokenBucketAlgorithm(LocalDateTime currentTime){
-        String response;
+    public RateLimitResponse tokenBucketAlgorithm(LocalDateTime currentTime){
         int refilRate=2;
         int maxBucketCapacity=10;
 
@@ -38,12 +38,12 @@ public class RateLimiterService {
 
 
         currentTokens= (int) Math.min(maxBucketCapacity,currentTokens + timeDifference*refilRate);
-
+        boolean allowed;
         if(currentTokens<1){
-            response="No tokens";
+          allowed=false;
         }else{
             currentTokens -= 1;
-            response="Tokens available " + currentTokens;
+            allowed=true;
         }
         //save these details into redis maxBucketSize,currentTokens in this state, currentTime, refilRate
         AlgorithmState algorithmState=new AlgorithmState();
@@ -52,7 +52,7 @@ public class RateLimiterService {
         algorithmState.setMaxBucketSize(maxBucketCapacity);
         algorithmState.setTimeStamp(LocalDateTime.now());
         rateLimiterRepository.save(algorithmState);
-        return response + " algoState about to save"+ algorithmState.getCurrentTokens();
+        return new RateLimitResponse(currentTokens,allowed,LocalDateTime.now());
     }
 
 }

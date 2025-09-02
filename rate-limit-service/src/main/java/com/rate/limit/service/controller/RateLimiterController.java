@@ -1,8 +1,8 @@
 package com.rate.limit.service.controller;
 
+import com.rate.limit.service.dto.RateLimitResponse;
 import com.rate.limit.service.service.RateLimiterService;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,7 +18,7 @@ public class RateLimiterController {
     }
 
     @PostMapping
-    public String callRateLimiterAlgo(@RequestBody String reqBody){
+    public RateLimitResponse callRateLimiterAlgo(){
       return rateLimiterService.tokenBucketAlgorithm(LocalDateTime.now());
     }
 }
