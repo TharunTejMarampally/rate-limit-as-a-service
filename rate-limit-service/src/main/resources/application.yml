@@ -1,8 +1,28 @@
 spring:
   application:
-   name: rate-limit-service
+    name: rate-limit-service
+
   redis:
     host: localhost
     port: 6379
     timeout: 60000
 
+  kafka:
+    bootstrap-servers: localhost:9093
+
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      retries: 0
+      acks: 1
+      properties:
+        max.block.ms: 5000
+        request.timeout.ms: 30000
+        delivery.timeout.ms: 120000
+
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.add.type.headers: false
+#        spring.json.trusted.packages: com.rate-limit-as-a-service

@@ -12,17 +12,18 @@ import java.time.LocalDateTime;
 public class RateLimiterService {
 
     private final RateLimiterRepository rateLimiterRepository;
+    private final KafkaProducerService kafkaProducerService;
+    private static final String KAFKA_TOPIC ="state";
 
-    public RateLimiterService(RateLimiterRepository rateLimiterRepository) {
+    public RateLimiterService(RateLimiterRepository rateLimiterRepository, KafkaProducerService kafkaProducerService) {
         this.rateLimiterRepository = rateLimiterRepository;
+        this.kafkaProducerService = kafkaProducerService;
     }
 
     public RateLimitResponse tokenBucketAlgorithm(LocalDateTime currentTime){
-        int refilRate=2;
+        int refilRate=0;
         int maxBucketCapacity=10;
-
         AlgorithmState previousState=rateLimiterRepository.retriveLastInsertedValue();
-
         int currentTokens;
         LocalDateTime lastUpdatedTime;
 
@@ -33,10 +34,7 @@ public class RateLimiterService {
             lastUpdatedTime=LocalDateTime.now();
             currentTokens=maxBucketCapacity;
         }
-
         long timeDifference=Duration.between(lastUpdatedTime, currentTime).toSeconds();
-
-
         currentTokens= (int) Math.min(maxBucketCapacity,currentTokens + timeDifference*refilRate);
         boolean allowed;
         if(currentTokens<1){
@@ -52,6 +50,9 @@ public class RateLimiterService {
         algorithmState.setMaxBucketSize(maxBucketCapacity);
         algorithmState.setTimeStamp(LocalDateTime.now());
         rateLimiterRepository.save(algorithmState);
+
+        kafkaProducerService.sendUser(KAFKA_TOPIC, algorithmState);
+
         return new RateLimitResponse(currentTokens,allowed,LocalDateTime.now());
     }
 
