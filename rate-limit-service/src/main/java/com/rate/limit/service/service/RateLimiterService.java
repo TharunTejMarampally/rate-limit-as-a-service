@@ -1,7 +1,7 @@
 package com.rate.limit.service.service;
 
-import com.rate.limit.service.dto.RateLimitResponse;
-import com.rate.limit.service.entity.AlgorithmState;
+import com.lib.common_lib.dto.RateLimitResponse;
+import com.lib.common_lib.entity.AlgorithmState;
 import com.rate.limit.service.repository.RateLimiterRepository;
 import org.springframework.stereotype.Service;
 
@@ -49,6 +49,7 @@ public class RateLimiterService {
         algorithmState.setRefileRate(refilRate);
         algorithmState.setMaxBucketSize(maxBucketCapacity);
         algorithmState.setTimeStamp(LocalDateTime.now());
+        algorithmState.setAllowed(allowed);
         rateLimiterRepository.save(algorithmState);
 
         kafkaProducerService.sendUser(KAFKA_TOPIC, algorithmState);

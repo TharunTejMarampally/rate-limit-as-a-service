@@ -4,19 +4,13 @@ plugins {
 	id 'io.spring.dependency-management' version '1.1.7'
 }
 
-group = 'com.example'
+group = 'com.lib'
 version = '0.0.1-SNAPSHOT'
-description = 'Logging service'
+description = 'Demo project for Spring Boot'
 
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(17)
-	}
-}
-
-configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
 	}
 }
 
@@ -26,15 +20,11 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation project(":common-lib")
-	implementation 'org.springframework.kafka:spring-kafka'
-	testImplementation 'org.springframework.kafka:spring-kafka-test'
-	compileOnly 'org.projectlombok:lombok'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	annotationProcessor 'org.projectlombok:lombok'
+	implementation 'org.springframework.boot:spring-boot-starter'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	compileOnly 'org.projectlombok:lombok:1.18.30'
+	annotationProcessor 'org.projectlombok:lombok:1.18.30'
 }
 
 tasks.named('test') {

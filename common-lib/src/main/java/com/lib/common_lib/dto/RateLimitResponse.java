@@ -1,4 +1,4 @@
-package com.rate.limit.service.dto;
+package com.lib.common_lib.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

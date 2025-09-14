@@ -1,4 +1,4 @@
-package com.rate.limit.service.entity;
+package com.lib.common_lib.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,6 +17,7 @@ public class AlgorithmState implements Serializable {
     private String id= UUID.randomUUID().toString();
     private LocalDateTime timeStamp;
     private int refileRate;
+    private boolean isAllowed;
     private int maxBucketSize;
     private int currentTokens;
 }

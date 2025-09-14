@@ -1,4 +1,4 @@
-package com.example.logging_service.entity;
+package com.lib.common_lib.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
-import java.lang.reflect.Type;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -22,6 +22,9 @@ public class RateLimitLog {
     @Id
     private String id= String.valueOf(UUID.randomUUID());
     @Field(type = FieldType.Date)
-    private LocalDateTime timeStamp;
+    private LocalDate timeStamp;
     private int currentTokens;
+    private int maxBucketSize;
+    private boolean isAllowed;
+    private int refileRate;
 }

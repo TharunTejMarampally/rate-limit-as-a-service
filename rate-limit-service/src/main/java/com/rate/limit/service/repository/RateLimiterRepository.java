@@ -1,7 +1,7 @@
 package com.rate.limit.service.repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rate.limit.service.entity.AlgorithmState;
+import com.lib.common_lib.entity.AlgorithmState;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;

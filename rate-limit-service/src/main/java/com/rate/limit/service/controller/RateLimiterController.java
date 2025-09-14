@@ -1,6 +1,6 @@
 package com.rate.limit.service.controller;
 
-import com.rate.limit.service.dto.RateLimitResponse;
+import com.lib.common_lib.dto.RateLimitResponse;
 import com.rate.limit.service.service.RateLimiterService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
