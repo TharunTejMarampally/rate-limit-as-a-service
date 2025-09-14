@@ -1,6 +1,6 @@
 package com.rate.limit.service.service;
 
-import com.rate.limit.service.entity.AlgorithmState;
+import com.lib.common_lib.entity.AlgorithmState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
