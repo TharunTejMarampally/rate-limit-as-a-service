@@ -3,3 +3,4 @@ rootProject.name = 'rate-limit-as-a-service'
 include("rate-limit-service")
 include("logging-service")
 include("common-lib")
+include("analytics-service")
