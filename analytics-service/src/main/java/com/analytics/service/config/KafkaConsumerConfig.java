@@ -20,7 +20,6 @@ public class KafkaConsumerConfig {
     public ConsumerFactory<String, AlgorithmState> consumerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9093");
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "state-consumer-group");
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
@@ -28,6 +27,8 @@ public class KafkaConsumerConfig {
         props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
         props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, AlgorithmState.class);
         props.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, false);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "state-consumer-group-analytics");
+
 
         return new DefaultKafkaConsumerFactory<>(props);
     }
@@ -37,6 +38,7 @@ public class KafkaConsumerConfig {
         ConcurrentKafkaListenerContainerFactory<String, AlgorithmState> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
+        factory.setConcurrency(3);
         return factory;
     }
 }

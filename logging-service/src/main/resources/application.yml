@@ -6,13 +6,4 @@ spring:
     name: logging-service
   elasticsearch:
     uris: http://localhost:9200
-  kafka:
-    bootstrap-servers: localhost:9093
-    consumer:
-      group-id: state-consumer-group
-      auto-offset-reset: earliest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-    properties:
-      spring.json.trusted.packages: "com.rate.limit.service.entity"
 

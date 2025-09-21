@@ -13,6 +13,7 @@ import org.springframework.kafka.support.serializer.JsonDeserializer;
 import java.util.HashMap;
 import java.util.Map;
 
+
 @Configuration
 public class KafkaConsumerConfig {
 
@@ -20,20 +21,17 @@ public class KafkaConsumerConfig {
     public ConsumerFactory<String, AlgorithmState> consumerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9093");
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "state-consumer-group");
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);
+        props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
+        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, AlgorithmState.class);
+        props.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, false);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "state-consumer-group-logging");
 
-        // Important: target class + trusted packages
-        JsonDeserializer<AlgorithmState> jsonDeserializer =
-                new JsonDeserializer<>(AlgorithmState.class, false);
-        jsonDeserializer.addTrustedPackages("*");
 
-        return new DefaultKafkaConsumerFactory<>(
-                props,
-                new StringDeserializer(),
-                jsonDeserializer
-        );
+        return new DefaultKafkaConsumerFactory<>(props);
     }
 
     @Bean
@@ -41,6 +39,7 @@ public class KafkaConsumerConfig {
         ConcurrentKafkaListenerContainerFactory<String, AlgorithmState> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
+        factory.setConcurrency(3);
         return factory;
     }
 }

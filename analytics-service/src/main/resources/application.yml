@@ -2,11 +2,6 @@ spring:
   application:
     name: analytics-service
 
-logging:
-  level:
-    org.apache.kafka: DEBUG
-    org.springframework.kafka: DEBUG
-
 management:
   endpoints:
     web:

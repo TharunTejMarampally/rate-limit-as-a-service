@@ -25,11 +25,9 @@ public class AnalyticalService {
         this.consumedCounter = Counter.builder("kafka_messages_consumed_total")
                 .description("Total messages consumed from Kafka")
                 .register(meterRegistry);
-        System.out.println("In Analytical service file.................................................");
         this.allowedRequests = Counter.builder("rate_limit_requests_allowed_total")
                 .description("Total allowed requests by rate limiter")
                 .register(meterRegistry);
-
         this.blockedRequests = Counter.builder("rate_limit_requests_blocked_total")
                 .description("Total blocked requests by rate limiter")
                 .register(meterRegistry);
@@ -37,44 +35,23 @@ public class AnalyticalService {
 
     @KafkaListener(
             topics = "state",
-            groupId = "state-consumer-group"
+            groupId = "state-consumer-group-analytics"
     )
     public void consumeMessage(
             @Payload AlgorithmState message,
             @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
-            @Header("KafkaHeaders.RECEIVED_PARTITION_ID") int partition,
             @Header(KafkaHeaders.OFFSET) long offset) {
-
-        logger.info("=== KAFKA MESSAGE RECEIVED ===");
-        logger.info("Topic: {}, Partition: {}, Offset: {}", topic, partition, offset);
-
         try {
             if (message == null) {
                 logger.error("Received null message from Kafka");
                 return;
             }
-
-            logger.info("Message details: {}", message);
-            logger.info("ID: {}", message.getId());
-            logger.info("TimeStamp: {}", message.getTimeStamp());
-            logger.info("RefileRate: {}", message.getRefileRate());
-            logger.info("MaxBucketSize: {}", message.getMaxBucketSize());
-            logger.info("CurrentTokens: {}", message.getCurrentTokens());
-            logger.info("Allowed: {}", message.isAllowed());
-
             consumedCounter.increment();
-            logger.info("Incremented consumed counter. Current count: {}", consumedCounter.count());
-
-            // Check if the request was allowed or blocked
             if (message.isAllowed()) {
                 allowedRequests.increment();
-                logger.info("Request allowed - incrementing allowed counter. Current count: {}", allowedRequests.count());
             } else {
                 blockedRequests.increment();
-                logger.info("Request blocked - incrementing blocked counter. Current count: {}", blockedRequests.count());
             }
-
-            logger.info("=== MESSAGE PROCESSING COMPLETE ===");
 
         } catch (Exception e) {
             logger.error("Error processing Kafka message: ", e);
@@ -82,12 +59,10 @@ public class AnalyticalService {
     }
 
     public String getCounters() {
-        String result = String.format("Consumed: %.0f, Allowed: %.0f, Blocked: %.0f",
+        return String.format("Consumed: %.0f, Allowed: %.0f, Blocked: %.0f",
                 consumedCounter.count(),
                 allowedRequests.count(),
                 blockedRequests.count());
-        logger.info("Returning counter values: {}", result);
-        return result;
     }
 
 }

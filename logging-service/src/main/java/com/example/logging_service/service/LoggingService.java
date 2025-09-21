@@ -21,7 +21,7 @@ public class LoggingService {
         this.loggingRepository = loggingRepository;
     }
 
-    @KafkaListener(topics = "state", groupId = "state-consumer-group")
+    @KafkaListener(topics = "state", groupId = "state-consumer-group-logging")
     public void consumeMessage(AlgorithmState message) throws IllegalAccessException {
 
         if(message == null){
