@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: analytics-service
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus,health
+  endpoint:
+    prometheus:
+      enabled: true
+

@@ -1,4 +1,4 @@
-package com.example.logging_service.config;
+package com.analytics.service.config;
 
 import com.lib.common_lib.entity.AlgorithmState;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -12,7 +12,6 @@ import org.springframework.kafka.support.serializer.JsonDeserializer;
 
 import java.util.HashMap;
 import java.util.Map;
-
 
 @Configuration
 public class KafkaConsumerConfig {
@@ -28,7 +27,7 @@ public class KafkaConsumerConfig {
         props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
         props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, AlgorithmState.class);
         props.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, false);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "state-consumer-group-logging");
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "state-consumer-group-analytics");
 
 
         return new DefaultKafkaConsumerFactory<>(props);
