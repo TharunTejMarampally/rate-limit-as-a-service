@@ -51,7 +51,7 @@ public class RateLimiterService {
         algorithmState.setCurrentTokens(currentTokens);
         algorithmState.setRefileRate(refillRate);
         algorithmState.setMaxBucketSize(maxBucketCapacity);
-        algorithmState.setTimeStamp(LocalDateTime.now());
+        algorithmState.setTimeStamp(currentTime);
         algorithmState.setAllowed(allowed);
         rateLimiterRepository.save(algorithmState);
 
