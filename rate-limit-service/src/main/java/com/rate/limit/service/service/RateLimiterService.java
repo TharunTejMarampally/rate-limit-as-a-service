@@ -21,11 +21,13 @@ public class RateLimiterService {
     }
 
     public RateLimitResponse tokenBucketAlgorithm(LocalDateTime currentTime){
-        int refilRate=0;
+        int refillRate=2;
+        int refillTimeIntervalSeconds=5;
         int maxBucketCapacity=10;
-        AlgorithmState previousState=rateLimiterRepository.retriveLastInsertedValue();
         int currentTokens;
         LocalDateTime lastUpdatedTime;
+
+        AlgorithmState previousState=rateLimiterRepository.retriveLastInsertedValue();
 
         if(previousState!=null&& previousState.getTimeStamp() != null){
            lastUpdatedTime=previousState.getTimeStamp();
@@ -34,8 +36,9 @@ public class RateLimiterService {
             lastUpdatedTime=LocalDateTime.now();
             currentTokens=maxBucketCapacity;
         }
-        long timeDifference=Duration.between(lastUpdatedTime, currentTime).toSeconds();
-        currentTokens= (int) Math.min(maxBucketCapacity,currentTokens + timeDifference*refilRate);
+        long timeDifference = Duration.between(lastUpdatedTime, currentTime).toSeconds();
+        int extraTokensToAdd = (int) (((double) timeDifference / refillTimeIntervalSeconds) * refillRate);
+        currentTokens = Math.min(maxBucketCapacity, currentTokens + extraTokensToAdd);
         boolean allowed;
         if(currentTokens<1){
           allowed=false;
@@ -43,10 +46,10 @@ public class RateLimiterService {
             currentTokens -= 1;
             allowed=true;
         }
-        //save these details into redis maxBucketSize,currentTokens in this state, currentTime, refilRate
+        //save these details into redis maxBucketSize,currentTokens in this state, currentTime, refillRate
         AlgorithmState algorithmState=new AlgorithmState();
         algorithmState.setCurrentTokens(currentTokens);
-        algorithmState.setRefileRate(refilRate);
+        algorithmState.setRefileRate(refillRate);
         algorithmState.setMaxBucketSize(maxBucketCapacity);
         algorithmState.setTimeStamp(LocalDateTime.now());
         algorithmState.setAllowed(allowed);
