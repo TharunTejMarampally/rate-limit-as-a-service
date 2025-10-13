@@ -7,7 +7,6 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,7 +21,7 @@ public class LoggingService {
         this.loggingRepository = loggingRepository;
     }
 
-    @KafkaListener(topics = "state", groupId = "state-consumer-group")
+    @KafkaListener(topics = "state", groupId = "state-consumer-group-logging")
     public void consumeMessage(AlgorithmState message) throws IllegalAccessException {
 
         if(message == null){
