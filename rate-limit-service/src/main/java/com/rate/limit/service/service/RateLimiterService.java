@@ -3,10 +3,12 @@ package com.rate.limit.service.service;
 import com.lib.common_lib.dto.RateLimitResponse;
 import com.lib.common_lib.entity.AlgorithmState;
 import com.rate.limit.service.repository.RateLimiterRepository;
+import jakarta.annotation.PreDestroy;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.concurrent.*;
 
 @Service
 public class RateLimiterService {
@@ -15,9 +17,21 @@ public class RateLimiterService {
     private final KafkaProducerService kafkaProducerService;
     private static final String KAFKA_TOPIC ="state";
 
+    private final ExecutorService executorService;
+
     public RateLimiterService(RateLimiterRepository rateLimiterRepository, KafkaProducerService kafkaProducerService) {
         this.rateLimiterRepository = rateLimiterRepository;
         this.kafkaProducerService = kafkaProducerService;
+        this.executorService = new ThreadPoolExecutor(
+                10,
+                20,
+                60,
+                TimeUnit.SECONDS,new LinkedBlockingDeque<>(100),
+                new ThreadPoolExecutor.CallerRunsPolicy());
+    }
+
+    public CompletableFuture<RateLimitResponse> tokenBucketAlgorithmAsync(LocalDateTime currentTime){
+        return CompletableFuture.supplyAsync(() -> tokenBucketAlgorithm(currentTime),executorService);
     }
 
     public RateLimitResponse tokenBucketAlgorithm(LocalDateTime currentTime){
@@ -26,7 +40,6 @@ public class RateLimiterService {
         int maxBucketCapacity=10;
         int currentTokens;
         LocalDateTime lastUpdatedTime;
-
         AlgorithmState previousState=rateLimiterRepository.retriveLastInsertedValue();
 
         if(previousState!=null&& previousState.getTimeStamp() != null){
@@ -58,6 +71,11 @@ public class RateLimiterService {
         kafkaProducerService.sendUser(KAFKA_TOPIC, algorithmState);
 
         return new RateLimitResponse(currentTokens,allowed,LocalDateTime.now());
+    }
+
+    @PreDestroy
+    public void shutDownThreadPool(){
+        executorService.shutdown();
     }
 
 }

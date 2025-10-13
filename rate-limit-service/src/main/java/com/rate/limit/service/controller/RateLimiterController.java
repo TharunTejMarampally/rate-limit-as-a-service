@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/api/rate-limiter-service/")
@@ -18,7 +19,7 @@ public class RateLimiterController {
     }
 
     @PostMapping
-    public RateLimitResponse callRateLimiterAlgo(){
-      return rateLimiterService.tokenBucketAlgorithm(LocalDateTime.now());
+    public CompletableFuture<RateLimitResponse> callRateLimiterAlgo(){
+      return rateLimiterService.tokenBucketAlgorithmAsync(LocalDateTime.now());
     }
 }
