@@ -10,28 +10,43 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.concurrent.*;
 
+import static com.lib.common_lib.constants.RateLimitAsAServiceConstants.FREE;
+
+
 @Service
 public class RateLimiterService {
+
 
     private final RateLimiterRepository rateLimiterRepository;
     private final KafkaProducerService kafkaProducerService;
     private static final String KAFKA_TOPIC ="state";
 
-    private final ExecutorService executorService;
+    private final ExecutorService freeExecutorService;
+    private final ExecutorService paidExecutorService;
 
     public RateLimiterService(RateLimiterRepository rateLimiterRepository, KafkaProducerService kafkaProducerService) {
         this.rateLimiterRepository = rateLimiterRepository;
         this.kafkaProducerService = kafkaProducerService;
-        this.executorService = new ThreadPoolExecutor(
+        this.freeExecutorService = new ThreadPoolExecutor(
                 10,
                 20,
                 60,
                 TimeUnit.SECONDS,new LinkedBlockingDeque<>(100),
                 new ThreadPoolExecutor.CallerRunsPolicy());
+        this.paidExecutorService= new ThreadPoolExecutor(
+                50,
+                100,
+                60,
+                TimeUnit.SECONDS,new LinkedBlockingDeque<>(100),
+                new ThreadPoolExecutor.CallerRunsPolicy());
     }
 
-    public CompletableFuture<RateLimitResponse> tokenBucketAlgorithmAsync(LocalDateTime currentTime){
-        return CompletableFuture.supplyAsync(() -> tokenBucketAlgorithm(currentTime),executorService);
+    public CompletableFuture<RateLimitResponse> tokenBucketAlgorithmAsync(String planType,LocalDateTime currentTime){
+        if(planType.equals(FREE)){
+            return CompletableFuture.supplyAsync(() -> tokenBucketAlgorithm(currentTime), freeExecutorService);
+        }else{
+            return CompletableFuture.supplyAsync(() -> tokenBucketAlgorithm(currentTime), paidExecutorService);
+        }
     }
 
     public RateLimitResponse tokenBucketAlgorithm(LocalDateTime currentTime){
@@ -40,7 +55,7 @@ public class RateLimiterService {
         int maxBucketCapacity=10;
         int currentTokens;
         LocalDateTime lastUpdatedTime;
-        AlgorithmState previousState=rateLimiterRepository.retriveLastInsertedValue();
+        AlgorithmState previousState=rateLimiterRepository.retrieveLastInsertedValue();
 
         if(previousState!=null&& previousState.getTimeStamp() != null){
            lastUpdatedTime=previousState.getTimeStamp();
@@ -74,8 +89,8 @@ public class RateLimiterService {
     }
 
     @PreDestroy
-    public void shutDownThreadPool(){
-        executorService.shutdown();
+    public void shutDownFreeThreadPool(){
+        freeExecutorService.shutdown();
+        paidExecutorService.shutdown();
     }
-
 }

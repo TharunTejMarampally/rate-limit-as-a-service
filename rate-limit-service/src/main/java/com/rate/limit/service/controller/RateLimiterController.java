@@ -3,6 +3,7 @@ package com.rate.limit.service.controller;
 import com.lib.common_lib.dto.RateLimitResponse;
 import com.rate.limit.service.service.RateLimiterService;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,7 +20,7 @@ public class RateLimiterController {
     }
 
     @PostMapping
-    public CompletableFuture<RateLimitResponse> callRateLimiterAlgo(){
-      return rateLimiterService.tokenBucketAlgorithmAsync(LocalDateTime.now());
+    public CompletableFuture<RateLimitResponse> callRateLimiterAlgo(@RequestHeader String planType){
+      return rateLimiterService.tokenBucketAlgorithmAsync(planType,LocalDateTime.now());
     }
 }
