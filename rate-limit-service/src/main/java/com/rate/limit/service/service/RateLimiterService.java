@@ -74,7 +74,6 @@ public class RateLimiterService {
             currentTokens -= 1;
             allowed=true;
         }
-        //save these details into redis maxBucketSize,currentTokens in this state, currentTime, refillRate
         AlgorithmState algorithmState=new AlgorithmState();
         algorithmState.setCurrentTokens(currentTokens);
         algorithmState.setRefileRate(refillRate);
@@ -83,8 +82,9 @@ public class RateLimiterService {
         algorithmState.setAllowed(allowed);
         rateLimiterRepository.save(algorithmState);
 
-        kafkaProducerService.sendUser(KAFKA_TOPIC, algorithmState);
-
+        CompletableFuture.runAsync(() ->
+                kafkaProducerService.sendUser(KAFKA_TOPIC, algorithmState)
+        );
         return new RateLimitResponse(currentTokens,allowed,LocalDateTime.now());
     }
 
