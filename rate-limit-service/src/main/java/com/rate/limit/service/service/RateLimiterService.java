@@ -3,7 +3,9 @@ package com.rate.limit.service.service;
 import com.lib.common_lib.dto.RateLimitResponse;
 import com.lib.common_lib.entity.AlgorithmState;
 import com.rate.limit.service.repository.RateLimiterRepository;
+import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -21,23 +23,66 @@ public class RateLimiterService {
     private final KafkaProducerService kafkaProducerService;
     private static final String KAFKA_TOPIC ="state";
 
-    private final ExecutorService freeExecutorService;
-    private final ExecutorService paidExecutorService;
+    private ExecutorService freeExecutorService;
+    private ExecutorService paidExecutorService;
 
-    public RateLimiterService(RateLimiterRepository rateLimiterRepository, KafkaProducerService kafkaProducerService) {
+    @Value("${app.refillRate}")
+    private int refillRate;
+
+    @Value("${app.refillTimeIntervalSeconds}")
+    private int refillTimeIntervalSeconds;
+
+    @Value("${app.maxBucketCapacity}")
+    private int maxBucketCapacity;
+
+    @Value("${app.isNotificationToKafka}")
+    private boolean isNotificationToKafka;
+
+    @Value("${app.freePlan.corePoolSize}")
+    private int freeCorePoolSize;
+
+    @Value("${app.freePlan.maxPoolSize}")
+    private int freeMaxPoolSize;
+
+    @Value("${app.freePlan.keepAliveTime}")
+    private int freeKeepAliveTime;
+
+    @Value("${app.freePlan.dequeSize}")
+    private int freeDequeSize;
+
+    @Value("${app.paidPlan.corePoolSize}")
+    private int paidCorePoolSize;
+
+    @Value("${app.paidPlan.maxPoolSize}")
+    private int paidMaxPoolSize;
+
+    @Value("${app.paidPlan.keepAliveTime}")
+    private int paidKeepAliveTime;
+
+    @Value("${app.paidPlan.dequeSize}")
+    private int paidDequeSize;
+
+    public RateLimiterService(RateLimiterRepository rateLimiterRepository,
+                              KafkaProducerService kafkaProducerService) {
         this.rateLimiterRepository = rateLimiterRepository;
         this.kafkaProducerService = kafkaProducerService;
+    }
+    @PostConstruct
+    private void initExecutors() {
         this.freeExecutorService = new ThreadPoolExecutor(
-                10,
-                20,
-                60,
-                TimeUnit.SECONDS,new LinkedBlockingDeque<>(100),
+                freeCorePoolSize,
+                freeMaxPoolSize,
+                freeKeepAliveTime,
+                TimeUnit.SECONDS,
+                new LinkedBlockingDeque<>(freeDequeSize),
                 new ThreadPoolExecutor.CallerRunsPolicy());
-        this.paidExecutorService= new ThreadPoolExecutor(
-                50,
-                100,
-                60,
-                TimeUnit.SECONDS,new LinkedBlockingDeque<>(100),
+
+        this.paidExecutorService = new ThreadPoolExecutor(
+                paidCorePoolSize,
+                paidMaxPoolSize,
+                paidKeepAliveTime,
+                TimeUnit.SECONDS,
+                new LinkedBlockingDeque<>(paidDequeSize),
                 new ThreadPoolExecutor.CallerRunsPolicy());
     }
 
@@ -50,9 +95,8 @@ public class RateLimiterService {
     }
 
     public RateLimitResponse tokenBucketAlgorithm(LocalDateTime currentTime){
-        int refillRate=2;
-        int refillTimeIntervalSeconds=5;
-        int maxBucketCapacity=10;
+
+
         int currentTokens;
         LocalDateTime lastUpdatedTime;
         AlgorithmState previousState=rateLimiterRepository.retrieveLastInsertedValue();
@@ -82,9 +126,11 @@ public class RateLimiterService {
         algorithmState.setAllowed(allowed);
         rateLimiterRepository.save(algorithmState);
 
-        CompletableFuture.runAsync(() ->
-                kafkaProducerService.sendUser(KAFKA_TOPIC, algorithmState)
-        );
+        if(isNotificationToKafka){
+            CompletableFuture.runAsync(() ->
+                    kafkaProducerService.sendUser(KAFKA_TOPIC, algorithmState)
+            );
+        }
         return new RateLimitResponse(currentTokens,allowed,LocalDateTime.now());
     }
 
