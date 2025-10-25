@@ -2,6 +2,7 @@ package com.rate.limit.service.service;
 
 import com.lib.common_lib.dto.RateLimitResponse;
 import com.lib.common_lib.entity.AlgorithmState;
+import com.rate.limit.service.custonException.PreviousStateNotFound;
 import com.rate.limit.service.repository.RateLimiterRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -12,6 +13,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.concurrent.*;
 
+import static com.lib.common_lib.constants.RateLimitAsAServiceConstants.ERROR_MESSAGE;
 import static com.lib.common_lib.constants.RateLimitAsAServiceConstants.FREE;
 
 
@@ -95,13 +97,13 @@ public class RateLimiterService {
     }
 
     public RateLimitResponse tokenBucketAlgorithm(LocalDateTime currentTime){
-
-
         int currentTokens;
         LocalDateTime lastUpdatedTime;
         AlgorithmState previousState=rateLimiterRepository.retrieveLastInsertedValue();
-
-        if(previousState!=null&& previousState.getTimeStamp() != null){
+        if(previousState==null){
+            throw new PreviousStateNotFound(ERROR_MESSAGE);
+        }
+        if(previousState.getTimeStamp() != null){
            lastUpdatedTime=previousState.getTimeStamp();
            currentTokens=previousState.getCurrentTokens();
         }else{
