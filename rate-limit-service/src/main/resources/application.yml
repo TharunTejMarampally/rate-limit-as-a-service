@@ -28,3 +28,19 @@ spring:
       properties:
         spring.json.add.type.headers: false
 #        spring.json.trusted.packages: com.rate-limit-as-a-service
+
+app:
+  freePlan:
+    corePoolSize: 10
+    maxPoolSize: 20
+    keepAliveTime: 60
+    dequeSize: 100
+  paidPlan:
+    corePoolSize: 50
+    maxPoolSize: 100
+    keepAliveTime: 60
+    dequeSize: 100
+  refillRate: 2
+  refillTimeIntervalSeconds: 5
+  maxBucketCapacity: 10
+  isNotificationToKafka: false
