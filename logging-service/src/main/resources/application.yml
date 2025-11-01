@@ -8,5 +8,3 @@ spring:
     uris: https://a1b08b0a2246456f8f8b97d3de898922.us-central1.gcp.cloud.es.io:9243
     username: elastic
     password: dXhIw40iCad33fKzytgpEwKU
-#  kibana: https://13d2a59fc5b6450fac28433baa533cd3.us-central1.gcp.cloud.es.io
-#    api-key: essu_T1hOSVRrYzFiMEo2YjAxellVSTJORGhYZDBrNlZWOVBkbmRVUVhOMmJGUldkM3BwYUdGNU9VeHFkdz09AAAAAKIownY=
