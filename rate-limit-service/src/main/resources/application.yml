@@ -6,12 +6,18 @@ spring:
     name: rate-limit-service
 
   redis:
-    host: localhost
-    port: 6379
+    url: rediss://default:AYkFAAIncDE0YTNiNzc1NGVhYzc0Y2U2OTcyNDJhNTdmY2JlY2YwY3AxMzUwNzc@full-stag-35077.upstash.io:6379
     timeout: 60000
 
   kafka:
-    bootstrap-servers: localhost:9093
+    bootstrap-servers: d3ucbnmc4cape6v3n30g.any.us-east-1.mpx.prd.cloud.redpanda.com:9092
+    properties:
+      security.protocol: SASL_SSL
+      sasl.mechanism: SCRAM-SHA-256
+      sasl.jaas.config: >
+        org.apache.kafka.common.security.scram.ScramLoginModule required
+        username="kafka-user"
+        password="ErRw66rVt47EU5EG45kOPXF5f6mYab";
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -27,7 +33,6 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.add.type.headers: false
-#        spring.json.trusted.packages: com.rate-limit-as-a-service
 
 app:
   freePlan:
@@ -43,4 +48,4 @@ app:
   refillRate: 2
   refillTimeIntervalSeconds: 5
   maxBucketCapacity: 10
-  isNotificationToKafka: false
+  isNotificationToKafka: true

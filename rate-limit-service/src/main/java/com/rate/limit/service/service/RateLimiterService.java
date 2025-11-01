@@ -100,10 +100,10 @@ public class RateLimiterService {
         int currentTokens;
         LocalDateTime lastUpdatedTime;
         AlgorithmState previousState=rateLimiterRepository.retrieveLastInsertedValue();
-        if(previousState==null){
-            throw new PreviousStateNotFound(ERROR_MESSAGE);
-        }
-        if(previousState.getTimeStamp() != null){
+//        if(previousState==null){
+//            throw new PreviousStateNotFound(ERROR_MESSAGE);
+//        }
+        if(previousState!=null && previousState.getTimeStamp() != null){
            lastUpdatedTime=previousState.getTimeStamp();
            currentTokens=previousState.getCurrentTokens();
         }else{
