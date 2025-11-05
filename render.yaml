@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: rate-limit-service
+    env: docker
+    plan: free
+    dockerfilePath: rate-limit-service/Dockerfile
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod

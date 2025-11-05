@@ -1,9 +1,8 @@
 version: "3.9"
 
 services:
-  # ============================================================
+
   #  INFRASTRUCTURE LAYER
-  # ============================================================
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.2.1
@@ -114,9 +113,7 @@ services:
     networks:
       - backend
 
-  # ============================================================
   #  APPLICATION LAYER (Microservices)
-  # ============================================================
 
   rate-limit-service:
     build:
@@ -177,9 +174,8 @@ services:
     networks:
       - backend
 
-# ============================================================
 #  NETWORKS & VOLUMES
-# ============================================================
+
 networks:
   backend:
     driver: bridge
